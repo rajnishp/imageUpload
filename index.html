@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Mogi I/O - Image Upload </title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta name="keywords"
+        content="easy transcoding, video CDN, Free CDN, Image optimization, video solution, vod, video on demand, video player, video analytics, transcoding apis, free transcoding, fast image cdn, fast video cdn, easy integration">
+
+    <!-- Search Engine -->
+    <meta name="description"
+        content="Mogi I/O is next generation, scalable and cost-effective delivery solution that enables online video providers (image optimization) to profit from their content by a superior video/image experience to billions">
+    <meta name="image" content="https://mogiio.com/images/logo1.png">
+    <!-- Schema.org for Google -->
+    <meta itemprop="name" content="MogiIO - Next Gen Video Solutions">
+    <meta itemprop="description"
+        content="Mogi I/O is next generation, scalable and cost-effective delivery solution that enables online video providers (image optimization) to profit from their content by a superior video/image experience to billions">
+    <meta itemprop="image" content="https://mogiio.com/images/logo1.png">
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="MogiIO - Next Gen Video Solutions">
+    <meta name="twitter:description"
+        content="Mogi I/O is next generation, scalable and cost-effective delivery solution that enables online video providers (image optimization) to profit from their content by a superior video/image experience to billions">
+    <!-- Open Graph general (Facebook, Pinterest & Google+) -->
+    <meta name="og:title" content="MogiIO - Next Gen Video Solutions">
+    <meta name="og:description"
+        content="Mogi I/O is next generation, scalable and cost-effective delivery solution that enables online video providers (image optimization) to profit from their content by a superior video/image experience to billions">
+    <meta name="og:image" content="https://mogiio.com/images/logo1.png">
+    <meta name="og:url" content="https://mogiio.com">
+    <meta name="og:site_name" content="Mogi I/O">
+    <meta name="og:locale" content="en_us">
+    <meta name="og:type" content="website">
+
+    <link rel="sitemap" type="application/xml" title="Sitemap" href="sitemap/sitemap.xml" />
+    <link href="https://mogiio.com/" rel="canonical">
+    <!-- Favicons -->
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+    <script src="https://demo.cdn2.mogiapp.com/ng-file-upload.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <!-- =======================================================
+    Template Name: MogiIO
+    Template URL: https://bootstrapmade.com/MogiIO-bootstrap-app-landing-page-template/
+    Author: BootstrapMade.com
+    Author URL: https://bootstrapmade.com/
+  ======================================================= -->
+</head>
+
+<body style="overflow-y: scroll;">
+
+    <div ng-app="myApp" ng-controller="formCtrl">
+        <form role="form" class="contact-form">
+
+            <h1><strong>File upload</strong> <label> to Mogi I/O Storage </label> </h1>
+
+            <div class="form-group">
+                <label for="title">Tags <span> Provide Image Tags </span></label>
+                <input type="text" name="title" id="title" ng-model="tags" class="form-controll" />
+            </div>
+
+            <div class="form-group">
+
+                <input type="file" id="file" class="form-control" ngf-select ng-model="file" name="file"
+                    ngf-pattern="'image/*'" ngf-accept="'image/*'" ngf-max-size="10MB" ngf-min-height="100"
+                    data-msg="Please Upload valid image" />
+            </div>
+
+            <div class="form-group">
+                <input type="button" ng-disabled="!file" style="margin-top: 8px;" ng-click="uploadFile()"
+                    value=" {{ showProgress ? progressPercentage + ' %' : 'Upload Image' }}"
+                    class=" form-control btn btn-primary d-block w-100">
+            </div>
+
+        </form>
+
+        <div class="form-group" ng-show="imageUrls && imageUrls.length">
+
+            <div ng-repeat="image in imageUrls">
+                <img src="{{image}}" style="max-width: 100%;" alt="{{image}}" />
+                <br>
+
+                <a style="color: white; font-weight: 500;" href="{{image}}" target="_blank">
+                    <span style="word-wrap: break-word;">{{image}} </span>
+                    <span class="icon la  la-external-link "></span>
+                </a>
+                <hr>
+                <br>
+            </div>
+        </div>
+
+    </div>
+
+    <link href='https://fonts.googleapis.com/css?family=Lato:100,200,300,400,500,600,700' rel='stylesheet'
+        type='text/css'>
+
+
+    <script>
+        var app = angular.module('myApp', ['ngFileUpload']);
+
+        app.controller('formCtrl', ['$scope', 'Upload', '$http', function ($scope, Upload, $http) {
+
+            $scope.imageUrls = [];
+            $scope.uploadFile = () => {
+                console.log("i am called ", $scope.file, $scope.file.$valid);
+                if ($scope.file) {
+                    // if ($scope.file.$valid && $scope.file) {
+                    $scope.upload($scope.file);
+                }
+            };
+
+
+            // upload on file select
+            $scope.showProgress = false;
+            $scope.upload = (file) => {
+                $scope.showProgress = true;
+                Upload.upload({
+                    url: 'https://tc.mogiapp.com/mogiio/image/upload',
+                    data: { file: file, upload: true, type: 'image', tags: $scope.tags },
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }).then(function (resp) {
+                    // console.log('Success ' + resp.config.data.file.name + 'uploaded. Response: ' + resp.data, resp, resp.status, resp.data.data.fileUrl);
+                    console.log("resp.status :: ", resp.data.status);
+                    $scope.file = '';
+                    $scope.imageUrls.push(resp.data.data.fileUrl);
+                    $scope.showProgress = false;
+
+                    return swal({
+                        title: "Image Uploaded",
+                        text: "Image uploaded successfully.",
+                        icon: "success",
+                        buttons: "Try More", // true,
+                    });
+
+                }, function (resp) {
+                    $scope.showProgress = false;
+                    console.log('Error status: ' + resp.status);
+                }, function (evt) {
+                    $scope.progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
+                    console.log('progress: ' + $scope.progressPercentage + '% ' + evt.config.data.file.name);
+                });
+            };
+
+        }]);
+    </script>
+
+    <style>
+        @import "compass/css3";
+
+        /* ===================== FILE INPUT ===================== */
+        .file-area {
+            width: 100%;
+            position: relative;
+
+            input[type=file] {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                opacity: 0;
+                cursor: pointer;
+            }
+
+            .file-dummy {
+                width: 100%;
+                padding: 30px;
+                background: rgba(255, 255, 255, 0.2);
+                border: 2px dashed rgba(255, 255, 255, 0.2);
+                text-align: center;
+                transition: background 0.3s ease-in-out;
+
+                .success {
+                    display: none;
+                }
+            }
+
+            &:hover .file-dummy {
+                background: rgba(255, 255, 255, 0.1);
+            }
+
+            input[type=file]:focus+.file-dummy {
+                outline: 2px solid rgba(255, 255, 255, 0.5);
+                outline: -webkit-focus-ring-color auto 5px;
+            }
+
+            input[type=file]:valid+.file-dummy {
+                border-color: rgba(0, 255, 0, 0.4);
+                background-color: rgba(0, 255, 0, 0.3);
+
+                .success {
+                    display: inline-block;
+                }
+
+                .default {
+                    display: none;
+                }
+            }
+        }
+
+        /* ===================== BASIC STYLING ===================== */
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Lato', sans-serif;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            font-weight: 300;
+            height: 100%;
+            background: #053777;
+            color: #fff;
+            font-size: 16px;
+            overflow: hidden;
+            background: -moz-linear-gradient(top, #053777 0%, #00659b 100%);
+            /* FF3.6+ */
+
+            background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #053777), color-stop(100%, #00659b));
+            /* Chrome,Safari4+ */
+
+            background: -webkit-linear-gradient(top, #053777 0%, #00659b 100%);
+            /* Chrome10+,Safari5.1+ */
+
+            background: -o-linear-gradient(top, #053777 0%, #00659b 100%);
+            /* Opera 11.10+ */
+
+            background: -ms-linear-gradient(top, #053777 0%, #00659b 100%);
+            /* IE10+ */
+
+            background: linear-gradient(to bottom, #053777 0%, #00659b 100%);
+            /* W3C */
+
+        }
+
+        h1 {
+            text-align: center;
+            margin: 50px auto;
+            font-weight: 100;
+        }
+
+        label {
+            font-weight: 500;
+            display: block;
+            margin: 4px 0;
+            text-transform: uppercase;
+            font-size: 13px;
+            overflow: hidden;
+
+            span {
+                float: right;
+                text-transform: none;
+                font-weight: 200;
+                line-height: 1em;
+                font-style: italic;
+                opacity: 0.8;
+            }
+        }
+
+        .form-controll {
+            display: block;
+            padding: 8px 16px;
+            width: 100%;
+            font-size: 16px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+            font-weight: 200;
+
+            &:focus {
+                outline: 2px solid rgba(255, 255, 255, 0.5);
+                outline: -webkit-focus-ring-color auto 5px;
+            }
+        }
+
+        button {
+            padding: 8px 30px;
+            background: rgba(255, 255, 255, 0.8);
+            color: #053777;
+            text-transform: uppercase;
+            font-weight: 600;
+            font-size: 11px;
+            border: 0;
+            text-shadow: 0 1px 2px #fff;
+            cursor: pointer;
+        }
+
+        .form-group {
+            max-width: 650px;
+            margin: auto;
+            margin-bottom: 30px;
+        }
+
+        .back-to-article {
+            color: #fff;
+            text-transform: uppercase;
+            font-size: 12px;
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            text-decoration: none;
+            display: inline-block;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px 18px;
+            transition: all 0.3s ease-in-out;
+            opacity: 0.6;
+
+            &:hover {
+                opacity: 1;
+                background: rgba(0, 0, 0, 0.8);
+            }
+        }
+    </style>
+
+</body>
+
+</html>
