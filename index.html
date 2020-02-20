@@ -115,14 +115,17 @@
             $scope.showProgress = false;
             $scope.upload = (file) => {
                 $scope.showProgress = true;
-                Upload.upload({
-                    url: 'https://tc.mogiapp.com/mogiio/image/upload',
-                    data: { file: file, upload: true, type: 'image', tags: $scope.tags },
-                    headers: {
-                        'Content-Type': 'application/json'
+                Upload.upload(
+                    // update below code section starts here
+                    {
+                        url: 'https://tc.mogiapp.com/mogiio/image/upload',
+                        data: { file: file, upload: true, type: 'image', tags: $scope.tags },
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
                     }
-                }).then(function (resp) {
-                    // console.log('Success ' + resp.config.data.file.name + 'uploaded. Response: ' + resp.data, resp, resp.status, resp.data.data.fileUrl);
+                    // update below code section ends here
+                ).then(function (resp) {
                     console.log("resp.status :: ", resp.data.status);
                     $scope.file = '';
                     $scope.imageUrls.push(resp.data.data.fileUrl);
@@ -132,7 +135,7 @@
                         title: "Image Uploaded",
                         text: "Image uploaded successfully.",
                         icon: "success",
-                        buttons: "Try More", // true,
+                        buttons: "Upload More",
                     });
 
                 }, function (resp) {
